@@ -4,60 +4,111 @@
 // Variabel global untuk menyimpan data users
 let users = [];
 
+// Fungsi untuk mendapatkan base URL
+function getBaseUrl() {
+    const currentUrl = window.location.href;
+    const pathArray = currentUrl.split('/');
+    return pathArray.slice(0, -1).join('/') + '/';
+}
+
 // Fungsi untuk validasi session dengan database
 function validateSession(session) {
     if (!session) return false;
     
-    // Ambil users dari localStorage
-    const storedUsers = localStorage.getItem('users');
-    const users = storedUsers ? JSON.parse(storedUsers) : [];
-    
-    // Cari user yang sesuai dengan session
-    const user = users.find(u => 
-        u.username === session.username && 
-        u.token === session.token && 
-        u.role === session.role
-    );
-    
-    return user !== undefined;
+    try {
+        // Ambil users dari localStorage
+        const storedUsers = localStorage.getItem('users');
+        const users = storedUsers ? JSON.parse(storedUsers) : [];
+        
+        // Cari user yang sesuai dengan session
+        const user = users.find(u => 
+            u.username === session.username && 
+            u.token === session.token && 
+            u.role === session.role
+        );
+        
+        return user !== undefined;
+    } catch (e) {
+        console.error('Error validating session:', e);
+        return false;
+    }
+}
+
+// Cek localStorage availability
+function isLocalStorageAvailable() {
+    try {
+        const test = '__test__';
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+    } catch (e) {
+        console.error('localStorage not available:', e);
+        return false;
+    }
 }
 
 // Proteksi halaman admin dengan validasi ketat
 (function() {
-    const session = JSON.parse(localStorage.getItem('session'));
+    console.log('Admin page loaded');
     
-    // Validasi session
-    if (!session || session.role !== 'admin' || !validateSession(session)) {
-        // Hapus session yang tidak valid
-        localStorage.removeItem('session');
-        window.location.href = 'index.html';
+    if (!isLocalStorageAvailable()) {
+        alert('Browser Anda tidak mendukung localStorage. Silakan gunakan browser lain.');
+        window.location.href = getBaseUrl() + 'index.html';
         return;
     }
     
-    // Load data dan tampilkan
-    loadUsers();
-    displayUserList();
+    try {
+        const session = JSON.parse(localStorage.getItem('session'));
+        console.log('Session:', session);
+        
+        // Validasi session
+        if (!session || session.role !== 'admin' || !validateSession(session)) {
+            console.log('Invalid session, redirecting to login');
+            // Hapus session yang tidak valid
+            localStorage.removeItem('session');
+            window.location.href = getBaseUrl() + 'index.html';
+            return;
+        }
+        
+        console.log('Session valid, loading data...');
+        // Load data dan tampilkan
+        loadUsers();
+        displayUserList();
+    } catch (e) {
+        console.error('Error in admin protection:', e);
+        window.location.href = getBaseUrl() + 'index.html';
+    }
 })();
 
 // Load users dari localStorage
 function loadUsers() {
-    const storedUsers = localStorage.getItem('users');
-    if (storedUsers) {
-        users = JSON.parse(storedUsers);
-    } else {
-        // Data default jika belum ada
-        users = [
-            { username: 'admin', token: 'admin123', role: 'admin' },
-            { username: 'user1', token: 'user123', role: 'user' }
-        ];
-        saveUsers();
+    try {
+        const storedUsers = localStorage.getItem('users');
+        if (storedUsers) {
+            users = JSON.parse(storedUsers);
+        } else {
+            // Data default jika belum ada
+            users = [
+                { username: 'admin', token: 'admin123', role: 'admin' },
+                { username: 'user1', token: 'user123', role: 'user' }
+            ];
+            saveUsers();
+        }
+    } catch (e) {
+        console.error('Error loading users:', e);
+        users = [];
     }
     return users;
 }
 
 // Simpan users ke localStorage
 function saveUsers() {
-    localStorage.setItem('users', JSON.stringify(users));
+    try {
+        localStorage.setItem('users', JSON.stringify(users));
+    } catch (e) {
+        console.error('Error saving users:', e);
+        showToast('Gagal menyimpan data', 'error');
+    }
 }
 
 // Generate token random (huruf + angka)
@@ -87,12 +138,19 @@ function displayUserList() {
     users.forEach(user => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${user.username}</td>
-            <td>${user.token}</td>
-            <td>${user.role}</td>
+            <td>${escapeHtml(user.username)}</td>
+            <td>${escapeHtml(user.token)}</td>
+            <td>${escapeHtml(user.role)}</td>
         `;
         userList.appendChild(row);
     });
+}
+
+// Escape HTML untuk keamanan
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Fungsi untuk menampilkan toast notification
@@ -130,8 +188,10 @@ function closeModal() {
     }
 }
 
-// Handle create account
+// Handle DOM ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM ready, initializing event listeners...');
+    
     const createBtn = document.getElementById('createAccountBtn');
     const copyBtn = document.getElementById('copyTokenBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -249,16 +309,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
             localStorage.removeItem('session');
-            window.location.href = 'index.html';
+            window.location.href = getBaseUrl() + 'index.html';
         });
     }
 });
 
 // Validasi session secara periodik (setiap 30 detik)
 setInterval(function() {
-    const currentSession = JSON.parse(localStorage.getItem('session'));
-    if (!validateSession(currentSession)) {
-        localStorage.removeItem('session');
-        window.location.href = 'index.html';
+    try {
+        const currentSession = JSON.parse(localStorage.getItem('session'));
+        if (!validateSession(currentSession)) {
+            console.log('Session expired, redirecting...');
+            localStorage.removeItem('session');
+            window.location.href = getBaseUrl() + 'index.html';
+        }
+    } catch (e) {
+        console.error('Error in session validation interval:', e);
     }
 }, 30000);
