@@ -229,7 +229,40 @@ table td {
 .status-value {
     color: #00ffd0;
 }
+/* Tambahkan ke file style.css */
+.contact-info {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+}
 
+.contact-info p {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.wa-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: #25D366;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.wa-link:hover {
+    background-color: #128C7E;
+}
+
+.wa-icon {
+    font-size: 18px;
+}
 .footer-text {
     color: #4a5a6e;
     text-align: center;
