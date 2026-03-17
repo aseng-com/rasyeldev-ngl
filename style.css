@@ -1,0 +1,257 @@
+/* file: style.css - Updated with dark theme from user.html */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #0a0e1a;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+}
+
+.login-box, .admin-panel, .user-dashboard {
+    background: #151e2c;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid #253041;
+}
+
+.login-box h2, .admin-panel h2, .user-dashboard h2 {
+    margin-bottom: 10px;
+    color: white;
+    font-size: 24px;
+}
+
+.login-box p {
+    color: #7f8fa6;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #7f8fa6;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px 16px;
+    background: #0f1a24;
+    border: 1px solid #253041;
+    border-radius: 12px;
+    font-size: 14px;
+    transition: all 0.3s;
+    color: white;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: #00ffd0;
+}
+
+.input-group input::placeholder {
+    color: #3a4a5e;
+}
+
+.btn-login, .btn-create, .btn-copy {
+    background: linear-gradient(145deg, #00ffd0, #00a3ff);
+    color: #0a0e1a;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-login:hover, .btn-create:hover, .btn-copy:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-login:active, .btn-create:active, .btn-copy:active {
+    transform: translateY(0);
+}
+
+.btn-logout {
+    background: #ff5e7c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: auto;
+}
+
+.btn-logout:hover {
+    background: #ff3b5c;
+}
+
+.error-message {
+    color: #ff5e7c;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #253041;
+}
+
+.create-account-section, .user-list-section, .user-info, .content {
+    margin-bottom: 30px;
+    padding: 24px;
+    background: #0f1a24;
+    border: 1px solid #253041;
+    border-radius: 16px;
+}
+
+.create-account-section h3, .user-list-section h3, .user-info h3, .content h3 {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 16px;
+}
+
+.token-result {
+    margin-top: 20px;
+    padding: 16px;
+    background: #151e2c;
+    border-radius: 12px;
+    border: 1px solid #253041;
+}
+
+.token-result p {
+    color: #7f8fa6;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.token-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.token-box code {
+    background: #0a121c;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'SF Mono', 'Monaco', monospace;
+    flex: 1;
+    color: #00ffd0;
+    font-size: 14px;
+    border: 1px solid #1e2b3a;
+}
+
+.btn-copy {
+    width: auto;
+    padding: 10px 20px;
+    background: #1e2b3a;
+    color: #00ffd0;
+    border: 1px solid #253041;
+}
+
+.btn-copy:hover {
+    background: #2a3a4a;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #253041;
+    color: #a0b0c0;
+}
+
+table th {
+    background: #151e2c;
+    font-weight: 600;
+    color: #7f8fa6;
+    font-size: 12px;
+}
+
+table td {
+    color: white;
+}
+
+.user-info p {
+    margin: 12px 0;
+    font-size: 14px;
+    color: #a0b0c0;
+}
+
+.user-info p strong {
+    color: #00ffd0;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+/* Additional dark theme elements */
+.status-value {
+    color: #00ffd0;
+}
+
+.footer-text {
+    color: #4a5a6e;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 10px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f1a24;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1e2b3a;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2a3a4a;
+}

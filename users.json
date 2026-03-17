@@ -1,0 +1,13 @@
+// file: users.json (hanya sebagai dokumentasi, tidak digunakan langsung)
+[
+    {
+        "username": "admin",
+        "token": "admin123",
+        "role": "admin"
+    },
+    {
+        "username": "user1",
+        "token": "user123",
+        "role": "user"
+    }
+]

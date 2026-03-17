@@ -1,0 +1,374 @@
+<!-- file: admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Buat Akun</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Responsive improvements for admin panel */
+        .admin-panel {
+            max-width: 900px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+
+        /* Table responsive */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 15px 0;
+            border-radius: 12px;
+        }
+
+        #userTable {
+            min-width: 600px;
+            width: 100%;
+        }
+
+        /* Modal/Swal style - Custom alert modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #151e2c;
+            border: 1px solid #253041;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, #00ffd0, #00a3ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+            color: #0a0e1a;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-info {
+            background: #0f1a24;
+            border: 1px solid #253041;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-info-item {
+            margin-bottom: 15px;
+        }
+
+        .modal-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-info-label {
+            color: #7f8fa6;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .modal-info-value {
+            background: #1e2b3a;
+            border: 1px solid #253041;
+            border-radius: 12px;
+            padding: 12px 15px;
+            color: #00ffd0;
+            font-family: 'SF Mono', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-copy-btn {
+            background: transparent;
+            border: none;
+            color: #00ffd0;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-copy-btn:hover {
+            background: #2a3a4a;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(145deg, #00ffd0, #00a3ff);
+            color: #0a0e1a;
+        }
+
+        .modal-btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .modal-btn-secondary {
+            background: #0f1a24;
+            color: #7f8fa6;
+            border: 1px solid #253041;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #1e2b3a;
+            color: white;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .admin-panel {
+                padding: 20px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .header h2 {
+                font-size: 20px;
+            }
+            
+            .create-account-section,
+            .user-list-section {
+                padding: 15px;
+            }
+            
+            .token-box {
+                flex-direction: column;
+            }
+            
+            .btn-copy {
+                width: 100%;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .modal-info-value {
+                font-size: 14px;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-panel {
+                padding: 15px;
+            }
+            
+            .input-group input {
+                font-size: 14px;
+                padding: 12px;
+            }
+            
+            .btn-create, .btn-logout {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .modal-title {
+                font-size: 20px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00ffd0;
+            color: #0a0e1a;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(0, 255, 208, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: #ff5e7c;
+            box-shadow: 0 5px 15px rgba(255, 94, 124, 0.3);
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 255, 208, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ffd0;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="admin-panel">
+            <div class="header">
+                <h2>Admin Panel</h2>
+                <button id="logoutBtn" class="btn-logout">Logout</button>
+            </div>
+            
+            <div class="create-account-section">
+                <h3>Buat Akun Baru</h3>
+                <div class="input-group">
+                    <label for="newUsername">Username</label>
+                    <input type="text" id="newUsername" placeholder="Masukkan username">
+                </div>
+                <button id="createAccountBtn" class="btn-create">
+                    <span>✨</span> Create Account
+                </button>
+                
+                <div id="tokenResult" class="token-result" style="display: none;">
+                    <p>Token berhasil dibuat:</p>
+                    <div class="token-box">
+                        <code id="generatedToken"></code>
+                        <button id="copyTokenBtn" class="btn-copy">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-list-section">
+                <h3>Daftar User</h3>
+                <div class="table-responsive">
+                    <table id="userTable">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Token</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userList">
+                            <!-- akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">✨</div>
+            <h3 class="modal-title">Akun Berhasil Dibuat!</h3>
+            <div class="modal-info">
+                <div class="modal-info-item">
+                    <div class="modal-info-label">Username</div>
+                    <div class="modal-info-value" id="modalUsername">-</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">Token</div>
+                    <div class="modal-info-value" id="modalToken">
+                        <span id="modalTokenText">-</span>
+                        <button class="modal-copy-btn" id="modalCopyBtn" title="Salin token">📋</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" id="modalCloseBtn">OK</button>
+                <button class="modal-btn modal-btn-secondary" id="modalCopyAllBtn">Salin Semua</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+    
+    <script src="admin.js"></script>
+</body>
+</html>
