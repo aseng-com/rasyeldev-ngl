@@ -4,17 +4,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Token</title>
+    <title>Login - NGL Spammer V4.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .version-badge {
+            background: linear-gradient(145deg, #00ffd0, #00a3ff);
+            color: #0a0e1a;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        .api-status {
+            font-size: 12px;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: #0f1a24;
+            border-radius: 8px;
+            border: 1px solid #253041;
+        }
+        
+        .login-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #4a5a6e;
+            font-size: 11px;
+            border-top: 1px solid #253041;
+            padding-top: 15px;
+        }
+        
+        .login-footer span {
+            color: #00ffd0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="login-box">
-            <h2>Login</h2>
-            <p>Masukkan username dan token Anda</p>
+            <div style="text-align: center; margin-bottom: 10px;">
+                <span class="version-badge">✨ VERSI 4.0 ✨</span>
+            </div>
+            <h2>NGL SPAMMER</h2>
+            <p>BY RASYEL DEV • Sistem Login Terbaru</p>
+            
+            <div class="api-status" id="apiStatus">
+                <span id="statusIcon">⏳</span> 
+                <span id="statusText">Menyambung ke database...</span>
+            </div>
+            
             <form id="loginForm">
                 <div class="input-group">
                     <label for="username">Username</label>
@@ -24,152 +67,157 @@
                     <label for="token">Token</label>
                     <input type="text" id="token" placeholder="Masukkan token" required>
                 </div>
-                <button type="submit" class="btn-login">Login</button>
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span>🔐</span> Login ke Panel
+                </button>
                 <p id="errorMessage" class="error-message"></p>
             </form>
+            
+            <div class="login-footer">
+                <p>© 2024 <span>RASYEL DEV</span> • Aplikasi telah diupdate ke versi 4.0</p>
+                <p style="margin-top: 5px; font-size: 9px;">Database: db.json • Multi-User Support</p>
+            </div>
         </div>
     </div>
     
     <script>
-        // Fungsi untuk mendapatkan base URL
-        function getBaseUrl() {
-            const currentUrl = window.location.href;
-            const pathArray = currentUrl.split('/');
-            // Ambil sampai direktori root (tanpa filename)
-            return pathArray.slice(0, -1).join('/') + '/';
-        }
-
-        // Fungsi untuk validasi session dengan database
-        function validateSession(session) {
-            if (!session) return false;
+        // URL ke file db.json - Sesuaikan dengan lokasi hosting
+        // Untuk localhost: 'db.json'
+        // Untuk GitHub Pages: '/nama-repository/db.json' atau './db.json'
+        const DB_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'db.json' 
+            : window.location.pathname.includes('/') 
+                ? window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/db.json'
+                : 'db.json';
+        
+        // Fungsi untuk memuat database
+        async function loadDatabase() {
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
             
             try {
-                // Ambil users dari localStorage
-                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const response = await fetch(DB_URL + '?t=' + new Date().getTime()); // Cache busting
                 
-                // Cari user yang sesuai dengan session
-                const user = users.find(u => 
-                    u.username === session.username && 
-                    u.token === session.token && 
-                    u.role === session.role
-                );
-                
-                return user !== undefined;
-            } catch (e) {
-                console.error('Error validating session:', e);
-                return false;
-            }
-        }
-
-        // Inisialisasi data default jika belum ada
-        function initializeData() {
-            try {
-                let users = localStorage.getItem('users');
-                if (!users) {
-                    // Data default
-                    const defaultUsers = [
-                        { username: 'admin', token: 'admin123', role: 'admin' },
-                        { username: 'user1', token: 'user123', role: 'user' }
-                    ];
-                    localStorage.setItem('users', JSON.stringify(defaultUsers));
-                    console.log('Data default initialized');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            } catch (e) {
-                console.error('Error initializing data:', e);
-            }
-        }
-
-        // Cek localStorage availability
-        function isLocalStorageAvailable() {
-            try {
-                const test = '__test__';
-                localStorage.setItem(test, test);
-                localStorage.removeItem(test);
-                return true;
-            } catch (e) {
-                console.error('localStorage not available:', e);
-                return false;
-            }
-        }
-
-        // Handle page load
-        (function() {
-            console.log('Page loaded, checking localStorage...');
-            
-            // Cek apakah localStorage tersedia
-            if (!isLocalStorageAvailable()) {
-                document.getElementById('errorMessage').textContent = 
-                    'Browser Anda tidak mendukung localStorage. Silakan gunakan browser lain.';
-                return;
-            }
-            
-            // Initialize data
-            initializeData();
-            
-            // Cek session
-            try {
-                const session = JSON.parse(localStorage.getItem('session'));
-                console.log('Existing session:', session);
                 
-                if (session && validateSession(session)) {
-                    // Session valid, redirect sesuai role
-                    const baseUrl = getBaseUrl();
-                    if (session.role === 'admin') {
-                        window.location.href = baseUrl + 'admin.html';
-                    } else if (session.role === 'user') {
-                        window.location.href = baseUrl + 'user.html';
-                    }
-                } else if (session) {
-                    // Session tidak valid, hapus
-                    localStorage.removeItem('session');
-                    console.log('Invalid session removed');
+                const data = await response.json();
+                console.log('Database loaded:', data);
+                
+                // Simpan ke sessionStorage agar bisa diakses halaman lain
+                sessionStorage.setItem('database', JSON.stringify(data));
+                
+                statusIcon.innerHTML = '✅';
+                statusText.innerHTML = 'Database terhubung';
+                statusText.style.color = '#00ffd0';
+                
+                return data;
+            } catch (error) {
+                console.error('Error loading database:', error);
+                statusIcon.innerHTML = '❌';
+                statusText.innerHTML = 'Gagal memuat database';
+                statusText.style.color = '#ff5e7c';
+                
+                // Fallback ke localStorage jika db.json tidak bisa diakses
+                const localData = localStorage.getItem('users');
+                if (localData) {
+                    statusIcon.innerHTML = '⚠️';
+                    statusText.innerHTML = 'Mode offline (localStorage)';
+                    statusText.style.color = '#ffa500';
+                    return { users: JSON.parse(localData) };
                 }
-            } catch (e) {
-                console.error('Error checking session:', e);
+                
+                return null;
             }
-        })();
+        }
 
-        // Handle login form
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Cek session yang masih aktif
+        async function checkActiveSession() {
+            const session = JSON.parse(sessionStorage.getItem('session'));
+            if (!session) return;
+            
+            const db = await loadDatabase();
+            if (!db) return;
+            
+            // Validasi session dengan database
+            const user = db.users.find(u => u.id === session.id);
+            
+            if (user && user.role === session.role) {
+                // Session valid, redirect
+                if (user.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'user.html';
+                }
+            } else {
+                // Session tidak valid
+                sessionStorage.removeItem('session');
+            }
+        }
+
+        // Handle login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value.trim();
             const token = document.getElementById('token').value.trim();
             const errorMessage = document.getElementById('errorMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            errorMessage.textContent = '';
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading"></span> Memproses...';
             
             try {
-                // Ambil users dari localStorage
-                const users = JSON.parse(localStorage.getItem('users')) || [];
+                // Load database
+                const db = await loadDatabase();
+                
+                if (!db) {
+                    errorMessage.textContent = 'Tidak dapat mengakses database';
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<span>🔐</span> Login ke Panel';
+                    return;
+                }
                 
                 // Cari user
-                const user = users.find(u => u.username === username && u.token === token);
+                const user = db.users.find(u => u.username === username && u.token === token);
                 
                 if (user) {
                     // Simpan session
-                    localStorage.setItem('session', JSON.stringify({
+                    sessionStorage.setItem('session', JSON.stringify({
+                        id: user.id,
                         username: user.username,
-                        token: user.token,
                         role: user.role
                     }));
                     
-                    console.log('Login successful:', user.username);
+                    // Simpan database ke sessionStorage untuk halaman lain
+                    sessionStorage.setItem('database', JSON.stringify(db));
                     
                     // Redirect berdasarkan role
-                    const baseUrl = getBaseUrl();
                     if (user.role === 'admin') {
-                        window.location.href = baseUrl + 'admin.html';
+                        window.location.href = 'admin.html';
                     } else {
-                        window.location.href = baseUrl + 'user.html';
+                        window.location.href = 'user.html';
                     }
                 } else {
                     errorMessage.textContent = 'Username atau token salah!';
-                    console.log('Login failed: invalid credentials');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<span>🔐</span> Login ke Panel';
                 }
-            } catch (e) {
-                console.error('Error during login:', e);
-                errorMessage.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = 'Terjadi kesalahan. Coba lagi.';
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>🔐</span> Login ke Panel';
             }
         });
+
+        // Inisialisasi
+        (async function() {
+            await loadDatabase();
+            await checkActiveSession();
+        })();
     </script>
 </body>
 </html>
