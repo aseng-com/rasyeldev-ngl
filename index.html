@@ -31,40 +31,101 @@
     </div>
     
     <script>
+        // Fungsi untuk mendapatkan base URL
+        function getBaseUrl() {
+            const currentUrl = window.location.href;
+            const pathArray = currentUrl.split('/');
+            // Ambil sampai direktori root (tanpa filename)
+            return pathArray.slice(0, -1).join('/') + '/';
+        }
+
         // Fungsi untuk validasi session dengan database
         function validateSession(session) {
             if (!session) return false;
             
-            // Ambil users dari localStorage
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            
-            // Cari user yang sesuai dengan session
-            const user = users.find(u => 
-                u.username === session.username && 
-                u.token === session.token && 
-                u.role === session.role
-            );
-            
-            return user !== undefined;
+            try {
+                // Ambil users dari localStorage
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                
+                // Cari user yang sesuai dengan session
+                const user = users.find(u => 
+                    u.username === session.username && 
+                    u.token === session.token && 
+                    u.role === session.role
+                );
+                
+                return user !== undefined;
+            } catch (e) {
+                console.error('Error validating session:', e);
+                return false;
+            }
         }
 
-        // Cek session saat halaman dimuat
+        // Inisialisasi data default jika belum ada
+        function initializeData() {
+            try {
+                let users = localStorage.getItem('users');
+                if (!users) {
+                    // Data default
+                    const defaultUsers = [
+                        { username: 'admin', token: 'admin123', role: 'admin' },
+                        { username: 'user1', token: 'user123', role: 'user' }
+                    ];
+                    localStorage.setItem('users', JSON.stringify(defaultUsers));
+                    console.log('Data default initialized');
+                }
+            } catch (e) {
+                console.error('Error initializing data:', e);
+            }
+        }
+
+        // Cek localStorage availability
+        function isLocalStorageAvailable() {
+            try {
+                const test = '__test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                return true;
+            } catch (e) {
+                console.error('localStorage not available:', e);
+                return false;
+            }
+        }
+
+        // Handle page load
         (function() {
-            const session = JSON.parse(localStorage.getItem('session'));
+            console.log('Page loaded, checking localStorage...');
             
-            if (session) {
-                // Validasi session dengan database
-                if (validateSession(session)) {
+            // Cek apakah localStorage tersedia
+            if (!isLocalStorageAvailable()) {
+                document.getElementById('errorMessage').textContent = 
+                    'Browser Anda tidak mendukung localStorage. Silakan gunakan browser lain.';
+                return;
+            }
+            
+            // Initialize data
+            initializeData();
+            
+            // Cek session
+            try {
+                const session = JSON.parse(localStorage.getItem('session'));
+                console.log('Existing session:', session);
+                
+                if (session && validateSession(session)) {
                     // Session valid, redirect sesuai role
+                    const baseUrl = getBaseUrl();
                     if (session.role === 'admin') {
-                        window.location.href = 'admin.html';
+                        window.location.href = baseUrl + 'admin.html';
                     } else if (session.role === 'user') {
-                        window.location.href = 'user.html';
+                        window.location.href = baseUrl + 'user.html';
                     }
-                } else {
+                } else if (session) {
                     // Session tidak valid, hapus
                     localStorage.removeItem('session');
+                    console.log('Invalid session removed');
                 }
+            } catch (e) {
+                console.error('Error checking session:', e);
             }
         })();
 
@@ -76,28 +137,37 @@
             const token = document.getElementById('token').value.trim();
             const errorMessage = document.getElementById('errorMessage');
             
-            // Ambil users dari localStorage
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            
-            // Cari user
-            const user = users.find(u => u.username === username && u.token === token);
-            
-            if (user) {
-                // Simpan session
-                localStorage.setItem('session', JSON.stringify({
-                    username: user.username,
-                    token: user.token,
-                    role: user.role
-                }));
+            try {
+                // Ambil users dari localStorage
+                const users = JSON.parse(localStorage.getItem('users')) || [];
                 
-                // Redirect berdasarkan role
-                if (user.role === 'admin') {
-                    window.location.href = 'admin.html';
+                // Cari user
+                const user = users.find(u => u.username === username && u.token === token);
+                
+                if (user) {
+                    // Simpan session
+                    localStorage.setItem('session', JSON.stringify({
+                        username: user.username,
+                        token: user.token,
+                        role: user.role
+                    }));
+                    
+                    console.log('Login successful:', user.username);
+                    
+                    // Redirect berdasarkan role
+                    const baseUrl = getBaseUrl();
+                    if (user.role === 'admin') {
+                        window.location.href = baseUrl + 'admin.html';
+                    } else {
+                        window.location.href = baseUrl + 'user.html';
+                    }
                 } else {
-                    window.location.href = 'user.html';
+                    errorMessage.textContent = 'Username atau token salah!';
+                    console.log('Login failed: invalid credentials');
                 }
-            } else {
-                errorMessage.textContent = 'Username atau token salah!';
+            } catch (e) {
+                console.error('Error during login:', e);
+                errorMessage.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
             }
         });
     </script>
